@@ -1,0 +1,27 @@
+# Python
+backend/venv/
+backend/__pycache__/
+backend/*/__pycache__/
+*.pyc
+
+# ML Models
+backend/ml_model/saved_models/
+*.pkl
+*.joblib
+
+# Data files
+backend/CIBIL_Credit_Score_Large_Dataset.csv
+*.csv
+
+# Frontend (when you add it)
+frontend/node_modules/
+frontend/.next/
+frontend/build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env
