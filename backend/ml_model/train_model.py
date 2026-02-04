@@ -4,81 +4,152 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.metrics import accuracy_score, classification_report
 import joblib
 import os
 
 def train_credit_score_model():
     """
-    Train ML model for credit score prediction
+    Train ML model for credit score prediction using CSV data
     Returns: Best model and preprocessing objects
     """
     
-    # Create sample dataset (you can replace with actual CSV file)
-    data = {
-        'Income': [40000, 60000, 30000, 80000, 25000, 90000, 50000, 70000, 20000, 100000],
-        'Loan_Amount': [500000, 300000, 700000, 200000, 900000, 150000, 400000, 250000, 1000000, 100000],
-        'Credit_Utilization': [0.6, 0.4, 0.8, 0.3, 0.9, 0.2, 0.5, 0.4, 0.95, 0.1],
-        'Missed_Payments': [2, 0, 4, 1, 6, 0, 1, 1, 7, 0],
-        'Credit_Score_Band': ['Fair', 'Good', 'Poor', 'Good', 'Poor', 'Excellent', 'Fair', 'Good', 'Poor', 'Excellent']
-    }
-    
-    df = pd.DataFrame(data)
-    
-    # Create new feature: Loan to Income Ratio
-    df['Loan_to_Income'] = df['Loan_Amount'] / df['Income']
-    
-    # Prepare features and target
-    X = df[['Income', 'Loan_Amount', 'Credit_Utilization', 'Missed_Payments', 'Loan_to_Income']]
-    y = df['Credit_Score_Band']
-    
-    # Encode target variable
-    label_encoder = LabelEncoder()
-    y_encoded = label_encoder.fit_transform(y)
-    
-    # Normalize features
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_scaled, y_encoded, test_size=0.2, random_state=42
-    )
-    
-    # Train Logistic Regression
-    log_reg = LogisticRegression(random_state=42)
-    log_reg.fit(X_train, y_train)
-    y_pred_log = log_reg.predict(X_test)
-    accuracy_log = accuracy_score(y_test, y_pred_log)
-    
-    # Train Decision Tree
-    dt = DecisionTreeClassifier(random_state=42)
-    dt.fit(X_train, y_train)
-    y_pred_dt = dt.predict(X_test)
-    accuracy_dt = accuracy_score(y_test, y_pred_dt)
-    
-    # Select best model
-    if accuracy_log >= accuracy_dt:
-        best_model = log_reg
-        model_name = "Logistic Regression"
-        accuracy = accuracy_log
-    else:
-        best_model = dt
-        model_name = "Decision Tree"
-        accuracy = accuracy_dt
-    
-    print(f"Best Model: {model_name}")
-    print(f"Accuracy: {accuracy:.2f}")
-    
-    # Create model directory if not exists
-    os.makedirs('ml_model/saved_models', exist_ok=True)
-    
-    # Save model and preprocessing objects
-    joblib.dump(best_model, 'ml_model/saved_models/credit_model.pkl')
-    joblib.dump(scaler, 'ml_model/saved_models/scaler.pkl')
-    joblib.dump(label_encoder, 'ml_model/saved_models/label_encoder.pkl')
-    
-    return best_model, scaler, label_encoder, model_name, accuracy
+    try:
+        # Load the CSV file
+        print("Loading CSV data...")
+        df = pd.read_csv('CIBIL_Credit_Score_Large_Dataset.csv')
+        print(f"Dataset loaded: {df.shape[0]} rows, {df.shape[1]} columns")
+        
+        # Show available columns
+        print("Columns in dataset:", df.columns.tolist())
+        
+        # Prepare features - using relevant columns from your CSV
+        # Based on your CSV columns, we'll use:
+        features = [
+            'Age',
+            'Monthly_Income', 
+            'Loan_Amount',
+            'Credit_Utilization',
+            'Missed_Payments_Last_12M',
+            'Total_Active_Loans',
+            'Credit_History_Years'
+        ]
+        
+        # Create additional features
+        df['Loan_to_Income_Ratio'] = df['Loan_Amount'] / df['Monthly_Income']
+        df['Utilization_Per_Loan'] = df['Credit_Utilization'] / (df['Total_Active_Loans'] + 1)
+        
+        # Add new features to feature list
+        features.append('Loan_to_Income_Ratio')
+        features.append('Utilization_Per_Loan')
+        
+        # Prepare features and target
+        X = df[features]
+        y = df['CIBIL_Score_Band']  # This is the target column
+        
+        # Check data
+        print("\nTarget distribution:")
+        print(y.value_counts())
+        
+        print(f"\nUsing {len(features)} features:")
+        for feature in features:
+            print(f"  - {feature}")
+        
+        # Handle any missing values (if any)
+        X = X.fillna(X.mean())
+        
+        # Encode target variable
+        label_encoder = LabelEncoder()
+        y_encoded = label_encoder.fit_transform(y)
+        
+        print(f"\nTarget classes: {label_encoder.classes_}")
+        
+        # Normalize features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        # Split data (80% train, 20% test)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_scaled, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
+        )
+        
+        print(f"\nTraining samples: {X_train.shape[0]}")
+        print(f"Testing samples: {X_test.shape[0]}")
+        
+        # Train multiple models
+        models = {
+            'Logistic Regression': LogisticRegression(random_state=42, max_iter=1000),
+            'Decision Tree': DecisionTreeClassifier(random_state=42),
+            'Random Forest': RandomForestClassifier(random_state=42, n_estimators=100),
+            'Gradient Boosting': GradientBoostingClassifier(random_state=42)
+        }
+        
+        best_model = None
+        best_model_name = ""
+        best_accuracy = 0
+        
+        print("\nTraining models...")
+        print("-" * 50)
+        
+        for name, model in models.items():
+            # Train model
+            model.fit(X_train, y_train)
+            
+            # Make predictions
+            y_pred = model.predict(X_test)
+            
+            # Calculate accuracy
+            accuracy = accuracy_score(y_test, y_pred)
+            
+            print(f"{name}:")
+            print(f"  Accuracy: {accuracy:.4f}")
+            
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_model = model
+                best_model_name = name
+        
+        print("-" * 50)
+        print(f"\n🎯 Best Model: {best_model_name}")
+        print(f"🏆 Best Accuracy: {best_accuracy:.4f}")
+        
+        # Get detailed classification report for best model
+        y_pred_best = best_model.predict(X_test)
+        print("\n📊 Classification Report:")
+        print(classification_report(y_test, y_pred_best, 
+                                   target_names=label_encoder.classes_))
+        
+        # Feature importance for tree-based models
+        if hasattr(best_model, 'feature_importances_'):
+            print("\n🔍 Feature Importance:")
+            importance_df = pd.DataFrame({
+                'Feature': features,
+                'Importance': best_model.feature_importances_
+            }).sort_values('Importance', ascending=False)
+            
+            for idx, row in importance_df.iterrows():
+                print(f"  {row['Feature']}: {row['Importance']:.4f}")
+        
+        # Create model directory if not exists
+        os.makedirs('ml_model/saved_models', exist_ok=True)
+        
+        # Save model and preprocessing objects
+        joblib.dump(best_model, 'ml_model/saved_models/credit_model.pkl')
+        joblib.dump(scaler, 'ml_model/saved_models/scaler.pkl')
+        joblib.dump(label_encoder, 'ml_model/saved_models/label_encoder.pkl')
+        
+        # Save feature list for reference
+        joblib.dump(features, 'ml_model/saved_models/features.pkl')
+        
+        print("\n✅ Model training completed!")
+        print(f"📁 Models saved to: ml_model/saved_models/")
+        
+        return best_model, scaler, label_encoder, best_model_name, best_accuracy
+        
+    except Exception as e:
+        print(f"❌ Error in training: {e}")
+        raise
 
 if __name__ == "__main__":
     train_credit_score_model()

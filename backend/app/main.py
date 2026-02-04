@@ -1,137 +1,117 @@
-import sys
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import numpy as np
+import joblib
+from typing import Dict, List
 import os
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Load model and preprocessing objects
+try:
+    model = joblib.load('ml_model/saved_models/credit_model.pkl')
+    scaler = joblib.load('ml_model/saved_models/scaler.pkl')
+    label_encoder = joblib.load('ml_model/saved_models/label_encoder.pkl')
+    features = joblib.load('ml_model/saved_models/features.pkl')
+    print("✅ Models loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading models: {e}")
+    # Create dummy objects for development
+    model = None
+    scaler = None
+    label_encoder = None
+    features = []
 
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import joblib
-import numpy as np
-import pandas as pd
-from typing import Dict, Any
+app = FastAPI(title="Credit Score Prediction API", 
+              description="API for predicting credit scores using ML")
 
-# Import model training function
-from ml_model.train_model import train_credit_score_model
-
-# Initialize FastAPI
-app = FastAPI(title="AI Credit Score Prediction API")
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Change to specific frontend URL in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Pydantic model for request validation
+# Pydantic model for input validation
 class CreditData(BaseModel):
-    income: float
+    age: float
+    monthly_income: float
     loan_amount: float
     credit_utilization: float
     missed_payments: int
+    total_active_loans: int
+    credit_history_years: float
 
-# Model paths
-MODEL_PATH = 'ml_model/saved_models/credit_model.pkl'
-SCALER_PATH = 'ml_model/saved_models/scaler.pkl'
-ENCODER_PATH = 'ml_model/saved_models/label_encoder.pkl'
-
-# Load models with better error handling
-def load_models():
-    """Load trained models or train new ones if not found"""
-    try:
-        if not all(os.path.exists(path) for path in [MODEL_PATH, SCALER_PATH, ENCODER_PATH]):
-            print("Models not found. Training new models...")
-            return train_credit_score_model()
-        
-        model = joblib.load(MODEL_PATH)
-        scaler = joblib.load(SCALER_PATH)
-        label_encoder = joblib.load(ENCODER_PATH)
-        print("Models loaded successfully!")
-        return model, scaler, label_encoder, "Pre-trained", None
-    except Exception as e:
-        print(f"Error loading models: {e}")
-        print("Training new models...")
-        return train_credit_score_model()
-
-# Load models at startup
-model, scaler, label_encoder, model_name, accuracy = load_models()
-
-# Business logic for loan decision (Improved)
-def get_loan_decision(score_band: str, risk_score: float) -> Dict[str, Any]:
-    """
-    Determine loan decision based on credit score band and risk score
-    """
-    score_band = score_band.lower()
-    
-    # Base decisions
-    base_decisions = {
-        'excellent': {
-            'decision': 'Approve',
-            'risk_level': 'Low',
-            'interest_rate': '7-8%'
-        },
-        'good': {
-            'decision': 'Approve',
-            'risk_level': 'Medium',
-            'interest_rate': '9-10%'
-        },
-        'fair': {
-            'decision': 'Review',
-            'risk_level': 'High',
-            'interest_rate': '11-13%'
-        },
-        'poor': {
-            'decision': 'Reject',
-            'risk_level': 'Very High',
-            'interest_rate': 'Not eligible'
+def get_loan_decision(score_band: str, risk_score: float) -> Dict:
+    """Determine loan decision based on credit score band and risk"""
+    if score_band == "Excellent":
+        return {
+            "decision": "APPROVED",
+            "risk_level": "LOW",
+            "interest_rate": "7.5% - 9.5%"
         }
-    }
+    elif score_band == "Good":
+        return {
+            "decision": "APPROVED",
+            "risk_level": "MODERATE",
+            "interest_rate": "10.5% - 12.5%"
+        }
+    elif score_band == "Fair":
+        return {
+            "decision": "APPROVED WITH CONDITIONS",
+            "risk_level": "MEDIUM",
+            "interest_rate": "13.5% - 15.5%"
+        }
+    else:  # Poor
+        if risk_score < 70:
+            return {
+                "decision": "REVIEW REQUIRED",
+                "risk_level": "HIGH",
+                "interest_rate": "16.5% - 18.5%"
+            }
+        else:
+            return {
+                "decision": "DECLINED",
+                "risk_level": "VERY HIGH",
+                "interest_rate": "N/A"
+            }
+
+def generate_insights(data: CreditData, risk_score: float, score_band: str, 
+                      loan_to_income: float, utilization_per_loan: float) -> Dict[str, List[str]]:
+    """Generate actionable insights based on user's data"""
+    insights = []
     
-    decision = base_decisions.get(score_band, {
-        'decision': 'Review',
-        'risk_level': 'Unknown',
-        'interest_rate': 'TBD'
-    })
+    if data.credit_utilization > 0.7:
+        insights.append("⚠️ High credit utilization (>70%). Consider paying down balances to improve score.")
     
-    # Adjust based on risk score
-    if risk_score > 80 and decision['decision'] == 'Approve':
-        decision['decision'] = 'Review'
-        decision['risk_level'] = 'High'
+    if data.missed_payments > 2:
+        insights.append(f"⚠️ {data.missed_payments} missed payments detected. Focus on timely payments.")
     
-    return decision
+    if loan_to_income > 0.5:
+        insights.append("⚠️ High loan-to-income ratio. Consider reducing loan amount or increasing income.")
+    
+    if utilization_per_loan > 0.4:
+        insights.append("⚠️ High credit utilization per active loan. Consider closing unnecessary accounts.")
+    
+    if data.credit_history_years < 2:
+        insights.append("📊 Short credit history. Keep accounts open and active to build history.")
+    
+    if data.age < 25:
+        insights.append("👤 Young borrower. Building credit history is key at this stage.")
+    
+    # Positive insights
+    if data.missed_payments == 0:
+        insights.append("✅ Excellent payment history - keep it up!")
+    
+    if data.credit_utilization < 0.3:
+        insights.append("✅ Good credit utilization ratio.")
+    
+    return {"recommendations": insights}
 
 @app.get("/")
 def read_root():
-    return {
-        "message": "AI Credit Score Prediction API",
-        "status": "running",
-        "model_info": {
-            "model_type": model_name,
-            "accuracy": accuracy if accuracy else "N/A"
-        },
-        "endpoints": {
-            "POST /predict": "Predict credit score",
-            "GET /health": "Check API health",
-            "POST /retrain": "Retrain model (admin)"
-        }
-    }
+    return {"message": "Credit Score Prediction API", "status": "running"}
 
 @app.get("/health")
 def health_check():
-    return {
-        "status": "healthy",
-        "models_loaded": all([model, scaler, label_encoder])
-    }
+    return {"status": "healthy", "model_loaded": model is not None}
 
 @app.post("/predict")
 def predict_credit_score(data: CreditData):
     try:
         # Validate input
-        if data.income <= 0:
+        if data.monthly_income <= 0:
             raise HTTPException(status_code=400, detail="Income must be positive")
         
         if data.credit_utilization < 0 or data.credit_utilization > 1:
@@ -140,20 +120,35 @@ def predict_credit_score(data: CreditData):
         if data.missed_payments < 0:
             raise HTTPException(status_code=400, detail="Missed payments cannot be negative")
         
-        # Calculate loan to income ratio
-        loan_to_income = data.loan_amount / data.income if data.income > 0 else 0
+        if data.total_active_loans < 0:
+            raise HTTPException(status_code=400, detail="Total active loans cannot be negative")
         
-        # Prepare features in correct order
-        features = np.array([[
-            data.income,
-            data.loan_amount,
-            data.credit_utilization,
-            data.missed_payments,
-            loan_to_income
-        ]])
+        # Check if model is loaded
+        if model is None or scaler is None or label_encoder is None:
+            raise HTTPException(status_code=500, detail="Model not loaded. Please train the model first.")
+        
+        # Calculate additional features
+        loan_to_income = data.loan_amount / data.monthly_income if data.monthly_income > 0 else 0
+        utilization_per_loan = data.credit_utilization / (data.total_active_loans + 1)
+        
+        # Create features dictionary
+        features_dict = {
+            'Age': data.age,
+            'Monthly_Income': data.monthly_income,
+            'Loan_Amount': data.loan_amount,
+            'Credit_Utilization': data.credit_utilization,
+            'Missed_Payments_Last_12M': data.missed_payments,
+            'Total_Active_Loans': data.total_active_loans,
+            'Credit_History_Years': data.credit_history_years,
+            'Loan_to_Income_Ratio': loan_to_income,
+            'Utilization_Per_Loan': utilization_per_loan
+        }
+        
+        # Create feature array in correct order
+        features_array = np.array([[features_dict[feature] for feature in features]])
         
         # Scale features
-        features_scaled = scaler.transform(features)
+        features_scaled = scaler.transform(features_array)
         
         # Make prediction
         prediction_encoded = model.predict(features_scaled)
@@ -163,10 +158,12 @@ def predict_credit_score(data: CreditData):
         
         # Calculate risk score (0-100)
         risk_score = min(100, max(0, 
-            (data.missed_payments * 15) + 
-            (data.credit_utilization * 35) + 
-            (loan_to_income * 25) +
-            (1 if data.income < 30000 else 0) * 25
+            (data.missed_payments * 10) + 
+            (data.credit_utilization * 30) + 
+            (loan_to_income * 20) +
+            (utilization_per_loan * 10) +
+            ((data.age < 25) * 10) +
+            (data.total_active_loans * 5)
         ))
         
         # Get loan decision using business rules
@@ -176,84 +173,28 @@ def predict_credit_score(data: CreditData):
             "status": "success",
             "prediction": {
                 "credit_score_band": score_band,
-                "risk_score": round(risk_score),
+                "risk_score": round(risk_score, 2),
                 "loan_decision": decision_info['decision'],
                 "risk_level": decision_info['risk_level'],
                 "suggested_interest_rate": decision_info['interest_rate'],
                 "features": {
-                    "income": data.income,
+                    "age": data.age,
+                    "monthly_income": data.monthly_income,
                     "loan_amount": data.loan_amount,
                     "credit_utilization": data.credit_utilization,
                     "missed_payments": data.missed_payments,
-                    "loan_to_income_ratio": round(loan_to_income, 4)
+                    "total_active_loans": data.total_active_loans,
+                    "credit_history_years": data.credit_history_years,
+                    "loan_to_income_ratio": round(loan_to_income, 4),
+                    "utilization_per_loan": round(utilization_per_loan, 4)
                 },
-                "insights": generate_insights(data, risk_score, score_band)
+                "insights": generate_insights(data, risk_score, score_band, loan_to_income, utilization_per_loan)
             }
         }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
-def generate_insights(data: CreditData, risk_score: float, score_band: str) -> Dict[str, str]:
-    """Generate actionable insights based on user's data"""
-    insights = []
-    
-    if data.credit_utilization > 0.7:
-        insights.append("High credit utilization (>70%). Consider paying down balances.")
-    
-    if data.missed_payments > 2:
-        insights.append(f"{data.missed_payments} missed payments detected. Focus on timely payments.")
-    
-    if data.loan_amount / data.income > 0.5:
-        insights.append("High loan-to-income ratio. Consider reducing loan amount.")
-    
-    if data.income < 30000 and risk_score > 60:
-        insights.append("Low income combined with high risk factors.")
-    
-    return {"recommendations": insights}
-
-# Training endpoint (for admin use)
-@app.post("/retrain")
-def retrain_model():
-    try:
-        global model, scaler, label_encoder, model_name, accuracy
-        model, scaler, label_encoder, model_name, accuracy = train_credit_score_model()
-        return {
-            "status": "success",
-            "message": "Model retrained successfully",
-            "model": model_name,
-            "accuracy": round(accuracy, 4),
-            "model_size": f"{os.path.getsize(MODEL_PATH) / 1024:.2f} KB"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# New endpoint for what-if analysis
-@app.post("/what-if")
-def what_if_analysis(data: CreditData, income_increase: float = 0):
-    """Analyze how changes would affect credit score"""
-    try:
-        # Create modified scenario
-        modified_data = CreditData(
-            income=data.income * (1 + income_increase/100),
-            loan_amount=data.loan_amount,
-            credit_utilization=data.credit_utilization,
-            missed_payments=data.missed_payments
-        )
-        
-        # Get original prediction
-        original = predict_credit_score(data)
-        
-        # Get modified prediction
-        modified = predict_credit_score(modified_data)
-        
-        return {
-            "original": original["prediction"],
-            "modified": modified["prediction"],
-            "change": {
-                "risk_score_change": modified["prediction"]["risk_score"] - original["prediction"]["risk_score"],
-                "decision_change": original["prediction"]["loan_decision"] != modified["prediction"]["loan_decision"]
-            }
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
