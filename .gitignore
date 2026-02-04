@@ -1,27 +1,80 @@
 # Python
+venv/
 backend/venv/
-backend/__pycache__/
-backend/*/__pycache__/
-*.pyc
+frontend/venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sitemap.xml
+sitemap.xml.gz
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+*.egg
+*.egg-info/
+.python-version
 
-# ML Models
-backend/ml_model/saved_models/
-*.pkl
-*.joblib
-
-# Data files
+# Data files - EXCLUDE LARGE FILES
 backend/CIBIL_Credit_Score_Large_Dataset.csv
 *.csv
+*.pkl
+*.joblib
+*.h5
+*.model
 
-# Frontend (when you add it)
-frontend/node_modules/
-frontend/.next/
-frontend/build/
+# ML models
+backend/ml_model/saved_models/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/build/
+frontend/.env.local
+frontend/.env.production.local
 
 # Environment
 .env
 *.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
