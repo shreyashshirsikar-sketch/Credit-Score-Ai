@@ -1,52 +1,149 @@
 /* src/index.css - Tailwind v4 compatible */
 @import "tailwindcss";
 
-/* Global Styles */
+/* =========================
+   GLOBAL VARIABLES
+========================= */
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --card-blur: 8px;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --card-blur: 14px;
 }
 
-body,
+/* =========================
+   BASE RESET
+========================= */
 html,
+body,
 #root {
   height: 100%;
 }
 
 body {
   @apply antialiased;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial;
+
+  /* Animated Gradient Background */
   background: linear-gradient(
-      135deg,
-      #5D2F77 0%,
-      #7B4793 35%,
-      #E45A92 70%,
-      #FFACAC 100%
-    );
-  background-attachment: fixed;
+    120deg,
+    #5D2F77,
+    #479384,
+    #E45A92,
+    #FFACAC
+  );
+  background-size: 300% 300%;
+  animation: gradientMove 18s ease infinite;
+
   color: #fdf6f9;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-}
-/* Glass Card Effect */
-.glass-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(var(--card-blur));
-  -webkit-backdrop-filter: blur(var(--card-blur));
 }
 
-/* Input Focus */
-.input-focus:focus {
-  outline: none;
-  box-shadow: 0 4px 20px rgba(228, 90, 146, 0.12);
-  border-color: #E45A92;
+/* =========================
+   BACKGROUND ANIMATION
+========================= */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* =========================
+   GLASS CARD EFFECT
+========================= */
+.glass-card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.04)
+  );
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--card-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--card-blur)) saturate(140%);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* =========================
+   INPUTS
+========================= */
+input {
+  color: #0f172a;
 }
 
 input::placeholder {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(15, 23, 42, 0.45); /* soft gray */
 }
 
-/* Brand Button */
+/* Focus Effect */
+.input-focus:focus {
+  outline: none;
+  border-color: #E45A92;
+  box-shadow:
+    0 0 0 3px rgba(228, 90, 146, 0.18),
+    0 10px 25px rgba(228, 90, 146, 0.25);
+}
+
+/* =========================
+   BRAND BUTTON
+========================= */
 .btn-brand {
   background: linear-gradient(90deg, #5D2F77 0%, #E45A92 60%);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.btn-brand:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   PERFORMANCE
+========================= */
+* {
+  will-change: transform;
+}
+/* Glass Card Effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 8px 32px rgba(9, 99, 126, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Subtle floating animation */
+@keyframes floatSlow {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+.glass-float {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+/* Calm fintech background */
+.app-bg {
+  background: linear-gradient(
+    180deg,
+    #EBF4F6 0%,
+    #F6FBFC 60%,
+    #FFFFFF 100%
+  );
+}
+.glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(9, 99, 126, 0.15);
+  box-shadow: 0 10px 30px rgba(9, 99, 126, 0.08);
 }
