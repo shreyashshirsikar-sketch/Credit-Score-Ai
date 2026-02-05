@@ -139,7 +139,7 @@ def train_credit_score_model():
     os.makedirs("ml_model/evaluation_results", exist_ok=True)
     
     # Save models
-    model_filename = f"credit_model_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+    model_filename = "credit_model.pkl"
     model_path = f"ml_model/saved_models/{model_filename}"
     
     joblib.dump(best_model, model_path)
