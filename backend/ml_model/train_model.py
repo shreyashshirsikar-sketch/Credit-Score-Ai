@@ -35,7 +35,7 @@ def train_credit_score_model():
     df = processor.feature_engineering()
     
     # Prepare data for training
-    X_train, X_test, y_train, y_test = processor.prepare_data(target_column='Credit_Score')
+    X_train, X_test, y_train, y_test = processor.prepare_data(target_column='CIBIL_Score_Band')
     
     if X_train is None:
         return None, None, None, "Error: No data prepared", 0

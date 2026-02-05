@@ -91,15 +91,15 @@ class DataProcessor:
         self.df.describe().to_csv("eda_results/basic_statistics.csv")
         
         # 2. Target variable distribution
-        if 'Credit_Score' in self.df.columns:
+        if 'CIBIL_Score_Band' in self.df.columns:
             print("\n🎯 Target Variable Distribution:")
-            print(self.df['Credit_Score'].value_counts())
+            print(self.df['CIBIL_Score_Band'].value_counts())
             
             # Plot distribution
             plt.figure(figsize=(10, 6))
-            self.df['Credit_Score'].value_counts().plot(kind='bar')
-            plt.title('Credit Score Distribution')
-            plt.xlabel('Credit Score Band')
+            self.df['CIBIL_Score_Band'].value_counts().plot(kind='bar')
+            plt.title('CIBIL Score Band Distribution')
+            plt.xlabel('CIBIL Score Band')
             plt.ylabel('Count')
             plt.tight_layout()
             plt.savefig('eda_results/target_distribution.png')
@@ -137,36 +137,48 @@ class DataProcessor:
         print("✅ EDA completed. Results saved to 'eda_results/' folder")
     
     def feature_engineering(self):
-        """Step 5: Feature Engineering"""
+        """Step 5: Feature Engineering - ONLY NUMERIC FEATURES"""
         print("\n⚙️ Performing feature engineering...")
         
-        # Example feature engineering (customize based on your data)
+        # IMPORTANT: Only create numeric features to avoid scaling issues
+        
         # 1. Create loan-to-income ratio
         if 'Monthly_Income' in self.df.columns and 'Loan_Amount' in self.df.columns:
-            self.df['Loan_to_Income_Ratio'] = self.df['Loan_Amount'] / self.df['Monthly_Income']
+            self.df['Loan_to_Income_Ratio'] = self.df['Loan_Amount'] / (self.df['Monthly_Income'] + 0.001)  # Add epsilon to avoid division by zero
+            print("  ✅ Added Loan_to_Income_Ratio")
         
-        # 2. Create utilization per loan
+        # 2. Create utilization per loan (numeric)
         if 'Credit_Utilization' in self.df.columns and 'Total_Active_Loans' in self.df.columns:
-            self.df['Utilization_Per_Loan'] = self.df['Credit_Utilization'] / (self.df['Total_Active_Loans'] + 1)
+            self.df['Utilization_Per_Loan'] = self.df['Credit_Utilization'] / (self.df['Total_Active_Loans'] + 0.001)
+            print("  ✅ Added Utilization_Per_Loan")
         
-        # 3. Create payment reliability score
+        # 3. Create payment reliability score (numeric, 0-1)
         if 'Missed_Payments_Last_12M' in self.df.columns:
-            self.df['Payment_Reliability'] = 1 / (1 + self.df['Missed_Payments_Last_12M'])
+            self.df['Payment_Reliability'] = 1.0 / (1.0 + self.df['Missed_Payments_Last_12M'])
+            print("  ✅ Added Payment_Reliability")
         
-        # 4. Create credit age group
-        if 'Credit_History_Years' in self.df.columns:
-            bins = [0, 2, 5, 10, float('inf')]
-            labels = ['New', 'Young', 'Established', 'Mature']
-            self.df['Credit_Age_Group'] = pd.cut(self.df['Credit_History_Years'], 
-                                                 bins=bins, labels=labels)
+        # 4. Create debt-to-income ratio (numeric)
+        if 'Monthly_Income' in self.df.columns and 'Total_Active_Loans' in self.df.columns:
+            self.df['Debt_to_Income'] = (self.df['Total_Active_Loans'] * 100000) / (self.df['Monthly_Income'] + 0.001)
+            print("  ✅ Added Debt_to_Income")
+        
+        # 5. Create credit score to income ratio (numeric)
+        if 'CIBIL_Score' in self.df.columns and 'Monthly_Income' in self.df.columns:
+            self.df['Score_to_Income_Ratio'] = self.df['CIBIL_Score'] / (self.df['Monthly_Income'] + 0.001)
+            print("  ✅ Added Score_to_Income_Ratio")
+        
+        # 6. Create interaction term: Age * Credit History
+        if 'Age' in self.df.columns and 'Credit_History_Years' in self.df.columns:
+            self.df['Age_Credit_Interaction'] = self.df['Age'] * self.df['Credit_History_Years']
+            print("  ✅ Added Age_Credit_Interaction")
         
         print(f"✅ Feature engineering complete. New shape: {self.df.shape}")
         print(f"New columns: {list(self.df.columns)}")
         
         return self.df
     
-    def prepare_data(self, target_column='Credit_Score', test_size=0.2):
-        """Prepare data for training"""
+    def prepare_data(self, target_column='CIBIL_Score_Band', test_size=0.2):
+        """Prepare data for training - REMOVES NON-NUMERIC COLUMNS"""
         print(f"\n📊 Preparing data (target: {target_column})...")
         
         if target_column not in self.df.columns:
@@ -176,6 +188,39 @@ class DataProcessor:
         # Separate features and target
         X = self.df.drop(columns=[target_column])
         y = self.df[target_column]
+        
+        # Remove Customer_ID (identifier, not useful for prediction)
+        if 'Customer_ID' in X.columns:
+            X = X.drop(columns=['Customer_ID'])
+            print("🗑️ Removed Customer_ID column")
+        
+        # Remove CIBIL_Score (redundant with CIBIL_Score_Band)
+        if 'CIBIL_Score' in X.columns:
+            X = X.drop(columns=['CIBIL_Score'])
+            print("🗑️ Removed CIBIL_Score column (redundant with target)")
+        
+        # CRITICAL FIX: Remove ALL non-numeric columns
+        non_numeric_cols = X.select_dtypes(exclude=[np.number]).columns
+        if len(non_numeric_cols) > 0:
+            print(f"🗑️ Removing non-numeric columns: {list(non_numeric_cols)}")
+            X = X.drop(columns=non_numeric_cols)
+        
+        # Also check for categorical columns that might be stored as numeric
+        # (e.g., Loan_Tenure_Months might have string values)
+        for col in X.columns:
+            # Try to convert to numeric, if it fails, remove the column
+            try:
+                pd.to_numeric(X[col])
+            except Exception as e:
+                print(f"🗑️ Removing column '{col}' that can't be converted to numeric")
+                X = X.drop(columns=[col])
+        
+        # Handle any NaN values that might have been created
+        if X.isna().any().any():
+            print(f"⚠️ Filling NaN values with column medians")
+            X = X.fillna(X.median())
+        
+        print(f"✅ Final features ({X.shape[1]}): {list(X.columns)}")
         
         # Split the data
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(

@@ -1,0 +1,23 @@
+{
+  "model_name": "Gradient Boosting",
+  "accuracy": 0.8425,
+  "f1_score": 0.8408353808353809,
+  "timestamp": "2026-02-05 12:07:12",
+  "test_samples": 400,
+  "features_used": [
+    "Age",
+    "Monthly_Income",
+    "Loan_Amount",
+    "Loan_Tenure_Months",
+    "Credit_Utilization",
+    "Missed_Payments_Last_12M",
+    "Total_Active_Loans",
+    "Credit_History_Years",
+    "Loan_to_Income_Ratio",
+    "Utilization_Per_Loan",
+    "Payment_Reliability",
+    "Debt_to_Income",
+    "Score_to_Income_Ratio",
+    "Age_Credit_Interaction"
+  ]
+}
