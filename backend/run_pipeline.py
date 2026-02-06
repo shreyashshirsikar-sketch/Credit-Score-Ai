@@ -2,12 +2,13 @@
 #!/usr/bin/env python3
 """
 Complete ML Pipeline Runner
-Runs all steps from data loading to deployment
+Runs all steps from data loading to deployment with enhanced metrics
 """
 
 import subprocess
 import sys
 import os
+import json
 
 def run_step(step_num, step_name, python_script):
     """Run a Python script for a pipeline step"""
@@ -25,7 +26,11 @@ def run_step(step_num, step_name, python_script):
         if result.returncode == 0:
             print("✅ Success!")
             if result.stdout:
-                print(result.stdout[:500])  # Print first 500 chars
+                # Print relevant output
+                lines = result.stdout.split('\n')
+                for line in lines:
+                    if any(keyword in line for keyword in ['Accuracy:', 'Precision:', 'Recall:', 'F1-Score:', '✅', '❌', '⚠️']):
+                        print(f"  {line}")
         else:
             print("❌ Failed!")
             if result.stderr:
@@ -34,6 +39,56 @@ def run_step(step_num, step_name, python_script):
     except Exception as e:
         print(f"❌ Exception: {e}")
         return False
+
+def display_summary():
+    """Display training summary from metrics file"""
+    metrics_file = "ml_model/evaluation_results/detailed_metrics.json"
+    
+    if os.path.exists(metrics_file):
+        print("\n" + "="*60)
+        print("📊 TRAINING SUMMARY")
+        print("="*60)
+        
+        try:
+            with open(metrics_file, 'r') as f:
+                metrics = json.load(f)
+            
+            print(f"\n🤖 Model: {metrics['model_name']}")
+            print(f"📅 Trained: {metrics['timestamp']}")
+            print(f"🧪 Test Samples: {metrics['test_samples']}")
+            print(f"🏋️‍♂️ Train Samples: {metrics['train_samples']}")
+            print(f"🎯 Features Used: {len(metrics['features_used'])}")
+            
+            print("\n📈 Overall Performance:")
+            overall = metrics['overall_metrics']
+            print(f"   • Accuracy:  {overall['accuracy']:.4f}")
+            print(f"   • Precision: {overall['weighted_precision']:.4f}")
+            print(f"   • Recall:    {overall['weighted_recall']:.4f}")
+            print(f"   • F1-Score:  {overall['weighted_f1']:.4f}")
+            
+            print("\n🎯 Per-Class Performance:")
+            for class_name, class_metrics in metrics['per_class_metrics'].items():
+                status = "✅" if class_metrics['f1_score'] > 0.8 else "⚠️" if class_metrics['f1_score'] > 0.6 else "❌"
+                print(f"   {status} {class_name}: P={class_metrics['precision']:.3f}, R={class_metrics['recall']:.3f}, F1={class_metrics['f1_score']:.3f}")
+            
+            print("\n📁 Generated Files:")
+            files = [
+                "model_report.html",
+                "detailed_metrics.json",
+                "confusion_matrix.png",
+                "feature_importance.png",
+                "precision_recall_plot.png"
+            ]
+            
+            for file in files:
+                path = f"ml_model/evaluation_results/{file}"
+                if os.path.exists(path):
+                    print(f"   • {file}")
+                else:
+                    print(f"   • {file} (missing)")
+            
+        except Exception as e:
+            print(f"⚠️ Could not load metrics: {e}")
 
 def main():
     print("=" * 60)
@@ -65,7 +120,7 @@ from ml_model.data_processor import DataProcessor
 p = DataProcessor('CIBIL_Credit_Score_Large_Dataset.csv')
 df = p.load_data()
 df = p.clean_data()
-print(f"Cleaned data shape: {df.shape}")
+print(f"✅ Cleaned data shape: {df.shape}")
 """
     
     # Step 2: EDA
@@ -78,17 +133,19 @@ p = DataProcessor('CIBIL_Credit_Score_Large_Dataset.csv')
 p.load_data()
 p.clean_data()
 p.exploratory_analysis()
-print("EDA completed. Check 'eda_results/' folder")
+print("✅ EDA completed. Check 'eda_results/' folder")
 """
     
-    # Step 3: Model Training
+    # Step 3: Model Training with Enhanced Metrics
     step3_code = """
 import sys
 import os
 sys.path.append('.')
 from ml_model.train_model import train_credit_score_model
 model, scaler, encoder, name, acc = train_credit_score_model()
-print(f"Model trained: {name}, Accuracy: {acc:.2%}")
+if model:
+    print(f"✅ Model trained: {name}")
+    print(f"📊 Check ml_model/evaluation_results/ for detailed metrics")
 """
     
     # Run steps
@@ -104,15 +161,38 @@ print(f"Model trained: {name}, Accuracy: {acc:.2%}")
             print(f"\n❌ Pipeline stopped at {step_name}")
             return
     
-    # Step 4: API Server
-    print("\n4️⃣ Start API Server")
-    print("-" * 40)
+    # Display summary
+    display_summary()
     
-    choice = input("Start API server? (y/n): ")
+    # Step 4: API Server
+    print("\n" + "="*60)
+    print("4️⃣ Start API Server")
+    print("="*60)
+    
+    print("\n🌐 API Endpoints Available:")
+    print("   • GET  /              - Welcome message")
+    print("   • GET  /health        - Health check")
+    print("   • POST /predict       - Make predictions")
+    print("   • GET  /docs          - Interactive API docs (Swagger UI)")
+    print("   • GET  /redoc         - Alternative API docs")
+    
+    print("\n📁 Check your model report:")
+    print("   file://" + os.path.abspath("ml_model/evaluation_results/model_report.html"))
+    
+    choice = input("\n🚀 Start API server? (y/n): ")
     if choice.lower() == 'y':
-        print("Starting API server on http://localhost:8000")
-        print("Press Ctrl+C to stop")
+        print("\n" + "="*60)
+        print("🚀 Starting API server on http://localhost:8000")
+        print("📚 Open http://localhost:8000/docs for API documentation")
+        print("🛑 Press Ctrl+C to stop")
+        print("="*60)
         subprocess.run(["python3", "run.py"])
+    else:
+        print("\n✅ Pipeline completed successfully!")
+        print("\n📋 Next steps:")
+        print("   1. Start API server: python run.py")
+        print("   2. Test API: python test_api.py")
+        print("   3. View report: open ml_model/evaluation_results/model_report.html")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,86 @@
+{
+  "model_name": "Gradient Boosting",
+  "overall_metrics": {
+    "accuracy": 0.8425,
+    "weighted_precision": 0.8483414536882492,
+    "weighted_recall": 0.8425,
+    "weighted_f1": 0.8408353808353809
+  },
+  "per_class_metrics": {
+    "Excellent": {
+      "precision": 0.8461538461538461,
+      "recall": 0.4583333333333333,
+      "f1_score": 0.5945945945945946,
+      "support": 24
+    },
+    "Fair": {
+      "precision": 0.7310924369747899,
+      "recall": 0.8446601941747572,
+      "f1_score": 0.7837837837837838,
+      "support": 103
+    },
+    "Good": {
+      "precision": 0.7313432835820896,
+      "recall": 0.7313432835820896,
+      "f1_score": 0.7313432835820896,
+      "support": 67
+    },
+    "Poor": {
+      "precision": 0.945273631840796,
+      "recall": 0.9223300970873787,
+      "f1_score": 0.9336609336609336,
+      "support": 206
+    }
+  },
+  "confusion_matrix": [
+    [
+      11,
+      0,
+      13,
+      0
+    ],
+    [
+      0,
+      87,
+      5,
+      11
+    ],
+    [
+      2,
+      16,
+      49,
+      0
+    ],
+    [
+      0,
+      16,
+      0,
+      190
+    ]
+  ],
+  "timestamp": "2026-02-05 23:34:38",
+  "test_samples": 400,
+  "train_samples": 1600,
+  "features_used": [
+    "Age",
+    "Monthly_Income",
+    "Loan_Amount",
+    "Loan_Tenure_Months",
+    "Credit_Utilization",
+    "Missed_Payments_Last_12M",
+    "Total_Active_Loans",
+    "Credit_History_Years",
+    "Loan_to_Income_Ratio",
+    "Utilization_Per_Loan",
+    "Payment_Reliability",
+    "Debt_to_Income",
+    "Score_to_Income_Ratio",
+    "Age_Credit_Interaction"
+  ],
+  "target_classes": [
+    "Excellent",
+    "Fair",
+    "Good",
+    "Poor"
+  ]
+}

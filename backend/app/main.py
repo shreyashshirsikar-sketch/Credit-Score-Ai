@@ -12,6 +12,7 @@ try:
     label_encoder = joblib.load('ml_model/saved_models/label_encoder.pkl')
     features = joblib.load('ml_model/saved_models/features.pkl')
     print("✅ Models loaded successfully")
+    print(f"📊 Model expects {len(features)} features: {features}")
 except Exception as e:
     print(f"❌ Error loading models: {e}")
     # Create dummy objects for development
@@ -32,6 +33,7 @@ class CreditData(BaseModel):
     missed_payments: int
     total_active_loans: int
     credit_history_years: float
+    loan_tenure_months: float
 
 def get_loan_decision(score_band: str, risk_score: float) -> Dict:
     """Determine loan decision based on credit score band and risk"""
@@ -123,26 +125,48 @@ def predict_credit_score(data: CreditData):
         if data.total_active_loans < 0:
             raise HTTPException(status_code=400, detail="Total active loans cannot be negative")
         
+        if data.loan_tenure_months <= 0:
+            raise HTTPException(status_code=400, detail="Loan tenure must be positive")
+        
         # Check if model is loaded
         if model is None or scaler is None or label_encoder is None:
             raise HTTPException(status_code=500, detail="Model not loaded. Please train the model first.")
         
-        # Calculate additional features
+        # Calculate ALL engineered features
         loan_to_income = data.loan_amount / data.monthly_income if data.monthly_income > 0 else 0
-        utilization_per_loan = data.credit_utilization / (data.total_active_loans + 1)
+        utilization_per_loan = data.credit_utilization / (data.total_active_loans + 0.001)
         
-        # Create features dictionary
+        # ADD THE 4 MISSING ENGINEERED FEATURES:
+        payment_reliability = 1.0 / (1.0 + data.missed_payments)
+        debt_to_income = (data.total_active_loans * 100000) / (data.monthly_income + 0.001)
+        age_credit_interaction = data.age * data.credit_history_years
+        score_to_income_ratio = 500 / (data.monthly_income + 0.001)  # Using average CIBIL score as placeholder
+        
+        # Create COMPLETE features dictionary with ALL 14 features
         features_dict = {
+            # Basic features (8):
             'Age': data.age,
             'Monthly_Income': data.monthly_income,
             'Loan_Amount': data.loan_amount,
+            'Loan_Tenure_Months': data.loan_tenure_months,
             'Credit_Utilization': data.credit_utilization,
             'Missed_Payments_Last_12M': data.missed_payments,
             'Total_Active_Loans': data.total_active_loans,
             'Credit_History_Years': data.credit_history_years,
+            
+            # Engineered features (6):
             'Loan_to_Income_Ratio': loan_to_income,
-            'Utilization_Per_Loan': utilization_per_loan
+            'Utilization_Per_Loan': utilization_per_loan,
+            'Payment_Reliability': payment_reliability,
+            'Debt_to_Income': debt_to_income,
+            'Score_to_Income_Ratio': score_to_income_ratio,
+            'Age_Credit_Interaction': age_credit_interaction
         }
+        
+        # Debug: Check if we have all features
+        print(f"🔧 Features calculated: {len(features_dict)}")
+        for key, value in features_dict.items():
+            print(f"  {key}: {value:.6f}")
         
         # Create feature array in correct order
         features_array = np.array([[features_dict[feature] for feature in features]])
@@ -178,15 +202,23 @@ def predict_credit_score(data: CreditData):
                 "risk_level": decision_info['risk_level'],
                 "suggested_interest_rate": decision_info['interest_rate'],
                 "features": {
+                    # Basic features:
                     "age": data.age,
                     "monthly_income": data.monthly_income,
                     "loan_amount": data.loan_amount,
+                    "loan_tenure_months": data.loan_tenure_months,
                     "credit_utilization": data.credit_utilization,
                     "missed_payments": data.missed_payments,
                     "total_active_loans": data.total_active_loans,
                     "credit_history_years": data.credit_history_years,
-                    "loan_to_income_ratio": round(loan_to_income, 4),
-                    "utilization_per_loan": round(utilization_per_loan, 4)
+                    
+                    # Engineered features:
+                    "loan_to_income_ratio": round(loan_to_income, 6),
+                    "utilization_per_loan": round(utilization_per_loan, 6),
+                    "payment_reliability": round(payment_reliability, 6),
+                    "debt_to_income": round(debt_to_income, 6),
+                    "score_to_income_ratio": round(score_to_income_ratio, 6),
+                    "age_credit_interaction": round(age_credit_interaction, 6)
                 },
                 "insights": generate_insights(data, risk_score, score_band, loan_to_income, utilization_per_loan)
             }
