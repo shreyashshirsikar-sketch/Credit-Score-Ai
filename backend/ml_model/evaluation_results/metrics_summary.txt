@@ -1,0 +1,37 @@
+MODEL EVALUATION SUMMARY
+==================================================
+
+Model: Gradient Boosting
+Timestamp: 2026-02-05 23:34:38
+Test Samples: 400
+Accuracy: 0.8425
+Precision: 0.8483
+Recall: 0.8425
+F1-Score: 0.8408
+
+PER-CLASS METRICS:
+----------------------------------------
+Excellent:
+  Precision: 0.8462
+  Recall:    0.4583
+  F1-Score:  0.5946
+  Support:   24
+
+Fair:
+  Precision: 0.7311
+  Recall:    0.8447
+  F1-Score:  0.7838
+  Support:   103
+
+Good:
+  Precision: 0.7313
+  Recall:    0.7313
+  F1-Score:  0.7313
+  Support:   67
+
+Poor:
+  Precision: 0.9453
+  Recall:    0.9223
+  F1-Score:  0.9337
+  Support:   206
+
