@@ -1,18 +1,24 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Landing from "./components/Landing";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
+// src/App.jsx
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import InputPage from './components/InputPage';
+import ResultPage from './components/ResultPage';
+import Dashboard from './components/Dashboard';
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* CHANGE THIS: Make InputPage the main route */}
+        <Route path="/" element={<InputPage />} />
+        
+        {/* Result page */}
+        <Route path="/result" element={<ResultPage />} />
+        
+        {/* Dashboard route - accessible separately */}
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 

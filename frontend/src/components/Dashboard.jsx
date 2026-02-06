@@ -1,289 +1,853 @@
 // src/components/Dashboard.jsx
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  TrendingUp, 
+  BarChart, 
+  Shield, 
+  Clock, 
+  DollarSign, 
+  CreditCard, 
+  PieChart,
+  CheckCircle,
+  AlertCircle,
+  Info,
+  Calculator,
+  Users,
+  FileText,
+  ArrowRight,
+  Zap,
+  Target,
+  Lock,
+  BarChart2
+} from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const stats = [
-    { title: "Total Received", value: "₹12,400", meta: "+8% this month", icon: "M13 10V3L4 14h7v7z" },
-    { title: "Total Spent", value: "₹4,760", meta: "-3% this month", icon: "M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" },
-    { title: "Current Balance", value: "₹7,640", meta: "+2% this month", icon: "M12 1v22M5 7h14" },
-    { title: "Credit Score", value: "732", meta: "Good", icon: "M12 2a10 10 0 100 20 10 10 0 000-20z" },
+  const handleGetStarted = () => {
+    navigate('/');
+  };
+
+  const styles = {
+    container: {
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    },
+    
+    // Hero Section
+    heroSection: {
+      background: 'linear-gradient(135deg, #1a3a8f 0%, #2a56b7 100%)',
+      color: 'white',
+      padding: '80px 20px',
+      borderRadius: '0 0 40px 40px',
+      position: 'relative',
+      overflow: 'hidden'
+    },
+    
+    heroContent: {
+      maxWidth: '1200px',
+      margin: '0 auto',
+      textAlign: 'center',
+      position: 'relative',
+      zIndex: 1
+    },
+    
+    heroBadge: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '10px',
+      background: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(10px)',
+      padding: '12px 24px',
+      borderRadius: '50px',
+      marginBottom: '30px',
+      border: '1px solid rgba(255, 255, 255, 0.2)'
+    },
+    
+    heroTitle: {
+      fontSize: '3.5rem',
+      fontWeight: '800',
+      lineHeight: '1.1',
+      marginBottom: '24px'
+    },
+    
+    gradientText: {
+      background: 'linear-gradient(90deg, #60a5fa, #a78bfa)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
+    },
+    
+    heroDescription: {
+      fontSize: '1.25rem',
+      lineHeight: '1.6',
+      maxWidth: '700px',
+      margin: '0 auto 40px',
+      opacity: '0.9'
+    },
+    
+    heroActions: {
+      display: 'flex',
+      gap: '20px',
+      justifyContent: 'center',
+      flexWrap: 'wrap'
+    },
+    
+    heroStats: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      gap: '20px',
+      maxWidth: '1200px',
+      margin: '60px auto 0'
+    },
+    
+    statCard: {
+      background: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      borderRadius: '20px',
+      padding: '30px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '20px',
+      transition: 'transform 0.3s ease'
+    },
+    
+    statIcon: {
+      width: '60px',
+      height: '60px',
+      background: 'rgba(255, 255, 255, 0.2)',
+      borderRadius: '15px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    
+    // Section Common Styles
+    section: {
+      padding: '80px 20px',
+      maxWidth: '1200px',
+      margin: '0 auto'
+    },
+    
+    sectionHeader: {
+      textAlign: 'center',
+      marginBottom: '60px'
+    },
+    
+    sectionTitle: {
+      fontSize: '2.5rem',
+      fontWeight: '700',
+      color: '#1e293b',
+      marginBottom: '16px'
+    },
+    
+    sectionSubtitle: {
+      fontSize: '1.125rem',
+      color: '#64748b',
+      maxWidth: '600px',
+      margin: '0 auto'
+    },
+    
+    // Steps Section
+    stepsContainer: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gap: '40px',
+      marginBottom: '80px'
+    },
+    
+    stepCard: {
+      textAlign: 'center',
+      position: 'relative'
+    },
+    
+    stepNumber: {
+      width: '60px',
+      height: '60px',
+      background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+      color: 'white',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '1.5rem',
+      fontWeight: '700',
+      margin: '0 auto 24px',
+      position: 'relative'
+    },
+    
+    stepContent: {
+      marginTop: '20px'
+    },
+    
+    stepTitle: {
+      fontSize: '1.5rem',
+      fontWeight: '600',
+      color: '#1e293b',
+      marginBottom: '12px'
+    },
+    
+    stepDescription: {
+      color: '#64748b',
+      lineHeight: '1.6'
+    },
+    
+    // Features Grid
+    featuresGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gap: '30px'
+    },
+    
+    featureCard: {
+      background: 'white',
+      borderRadius: '20px',
+      padding: '30px',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      transition: 'all 0.3s ease'
+    },
+    
+    featureIcon: {
+      width: '60px',
+      height: '60px',
+      background: '#f1f5f9',
+      borderRadius: '15px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: '20px'
+    },
+    
+    // Score Ranges
+    scoreRangesGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gap: '20px',
+      maxWidth: '1000px',
+      margin: '0 auto 40px'
+    },
+    
+    scoreCard: {
+      background: '#f8fafc',
+      borderRadius: '15px',
+      padding: '25px',
+      textAlign: 'center'
+    },
+    
+    scoreRange: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      marginBottom: '20px'
+    },
+    
+    rangeValue: {
+      fontSize: '1.5rem',
+      fontWeight: '700',
+      color: '#1e293b'
+    },
+    
+    rangeLabel: {
+      fontSize: '1rem',
+      fontWeight: '600',
+      color: '#64748b'
+    },
+    
+    rangeBar: {
+      height: '8px',
+      background: '#e2e8f0',
+      borderRadius: '4px',
+      overflow: 'hidden'
+    },
+    
+    // Tips Section
+    tipsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      gap: '20px'
+    },
+    
+    tipCard: {
+      background: 'white',
+      borderRadius: '15px',
+      padding: '25px',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '20px'
+    },
+    
+    tipIcon: {
+      position: 'relative',
+      flexShrink: 0
+    },
+    
+    importanceBadge: {
+      position: 'absolute',
+      top: '-8px',
+      right: '-8px',
+      fontSize: '0.7rem',
+      fontWeight: '600',
+      padding: '2px 8px',
+      borderRadius: '10px',
+      color: 'white'
+    },
+    
+    // CTA Section
+    ctaSection: {
+      background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
+      color: 'white',
+      padding: '80px 20px',
+      margin: '40px 0',
+      borderRadius: '30px'
+    },
+    
+    ctaContent: {
+      maxWidth: '800px',
+      margin: '0 auto',
+      textAlign: 'center'
+    },
+    
+    // Buttons
+    primaryBtn: {
+      background: 'white',
+      color: '#1e3a8a',
+      border: 'none',
+      padding: '16px 32px',
+      borderRadius: '12px',
+      fontSize: '1.125rem',
+      fontWeight: '600',
+      cursor: 'pointer',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '12px',
+      transition: 'all 0.3s ease'
+    },
+    
+    secondaryBtn: {
+      background: 'transparent',
+      color: 'white',
+      border: '2px solid rgba(255, 255, 255, 0.3)',
+      padding: '16px 32px',
+      borderRadius: '12px',
+      fontSize: '1.125rem',
+      fontWeight: '600',
+      cursor: 'pointer',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '12px',
+      transition: 'all 0.3s ease'
+    },
+    
+    // Footer
+    footer: {
+      background: '#0f172a',
+      color: '#cbd5e1',
+      padding: '60px 20px 30px'
+    },
+    
+    footerContent: {
+      maxWidth: '1200px',
+      margin: '0 auto',
+      display: 'grid',
+      gridTemplateColumns: '1fr 2fr',
+      gap: '60px',
+      marginBottom: '40px'
+    },
+    
+    footerBottom: {
+      maxWidth: '1200px',
+      margin: '0 auto',
+      paddingTop: '30px',
+      borderTop: '1px solid #334155',
+      textAlign: 'center'
+    },
+    
+    // Responsive
+    '@media (max-width: 768px)': {
+      heroTitle: {
+        fontSize: '2rem'
+      },
+      heroStats: {
+        gridTemplateColumns: '1fr'
+      },
+      featuresGrid: {
+        gridTemplateColumns: '1fr'
+      },
+      scoreRangesGrid: {
+        gridTemplateColumns: 'repeat(2, 1fr)'
+      },
+      footerContent: {
+        gridTemplateColumns: '1fr'
+      }
+    },
+    
+    '@media (max-width: 480px)': {
+      heroActions: {
+        flexDirection: 'column'
+      },
+      scoreRangesGrid: {
+        gridTemplateColumns: '1fr'
+      }
+    }
+  };
+
+  const features = [
+    {
+      icon: <BarChart />,
+      title: 'AI-Powered Prediction',
+      description: 'Advanced algorithms analyze 8 key factors for accurate credit score estimation',
+      color: '#3b82f6'
+    },
+    {
+      icon: <Shield />,
+      title: 'Secure & Private',
+      description: 'Your data stays on your device. No personal information is stored',
+      color: '#10b981'
+    },
+    {
+      icon: <Clock />,
+      title: 'Instant Results',
+      description: 'Get your credit analysis in seconds with detailed improvement tips',
+      color: '#8b5cf6'
+    },
+    {
+      icon: <DollarSign />,
+      title: 'Financial Insights',
+      description: 'Understand how different factors impact your creditworthiness',
+      color: '#f59e0b'
+    },
+    {
+      icon: <CreditCard />,
+      title: 'Credit Utilization',
+      description: 'Learn the optimal credit usage for better scores',
+      color: '#ef4444'
+    },
+    {
+      icon: <PieChart />,
+      title: 'Risk Analysis',
+      description: 'Get your credit risk level categorized as Low, Medium, or High',
+      color: '#6366f1'
+    }
   ];
 
-  const transactions = [
-    { id: 1, date: "2026-01-28", desc: "Payment from John", amount: "+₹2,500", status: "Received" },
-    { id: 2, date: "2026-01-26", desc: "Subscription (Pro)", amount: "-₹499", status: "Paid" },
-    { id: 3, date: "2026-01-21", desc: "Office Supplies", amount: "-₹1,200", status: "Paid" },
-    { id: 4, date: "2026-01-11", desc: "Refund", amount: "+₹300", status: "Received" },
+  const scoreRanges = [
+    { range: '300-579', label: 'Poor', color: '#ef4444', width: '20%' },
+    { range: '580-669', label: 'Fair', color: '#f59e0b', width: '40%' },
+    { range: '670-739', label: 'Good', color: '#3b82f6', width: '60%' },
+    { range: '740-799', label: 'Very Good', color: '#10b981', width: '80%' },
+    { range: '800-850', label: 'Excellent', color: '#8b5cf6', width: '100%' }
+  ];
+
+  const quickTips = [
+    {
+      icon: <CheckCircle />,
+      tip: 'Keep credit utilization below 30%',
+      importance: 'High',
+      color: '#f59e0b'
+    },
+    {
+      icon: <CheckCircle />,
+      tip: 'Never miss payment deadlines',
+      importance: 'Critical',
+      color: '#ef4444'
+    },
+    {
+      icon: <CheckCircle />,
+      tip: 'Maintain a healthy credit mix',
+      importance: 'Medium',
+      color: '#3b82f6'
+    },
+    {
+      icon: <CheckCircle />,
+      tip: 'Limit new credit applications',
+      importance: 'High',
+      color: '#f59e0b'
+    }
+  ];
+
+  const steps = [
+    {
+      number: '1',
+      title: 'Enter Your Information',
+      description: 'Fill in 8 key financial parameters including age, income, loan details, and credit history'
+    },
+    {
+      number: '2',
+      title: 'AI Analysis',
+      description: 'Our algorithm processes your data using credit scoring models to generate accurate predictions'
+    },
+    {
+      number: '3',
+      title: 'Get Results & Tips',
+      description: 'Receive your credit score, risk level, and personalized improvement recommendations'
+    }
   ];
 
   return (
-    <div
-      className="min-h-screen bg-[linear-gradient(180deg,#F8F4EC_0%,#FFF9F9_100%)] text-[#43334C]"
-      style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial" }}
-    >
-      <div className="flex">
-        {/* Sidebar */}
-        <aside
-          className={`hidden md:flex flex-col w-72 p-6 gap-6 transition-all duration-300`}
-          style={{
-            background: "linear-gradient(180deg, rgba(232,60,145,0.06), rgba(255,143,183,0.03))",
-            borderRight: "1px solid rgba(67,51,76,0.06)",
-            minHeight: "100vh",
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold"
-              style={{
-                background: "linear-gradient(135deg,#E83C91,#FF8FB7)",
-                boxShadow: "0 8px 22px rgba(232,60,145,0.18)",
+    <div style={styles.container}>
+      {/* Hero Section */}
+      <div style={styles.heroSection}>
+        <div style={styles.heroContent}>
+          <div style={styles.heroBadge}>
+            <TrendingUp style={{ width: '20px', height: '20px' }} />
+            <span>AI-Powered Credit Analysis</span>
+          </div>
+          
+          <h1 style={styles.heroTitle}>
+            Take Control of Your <span style={styles.gradientText}>Credit Health</span>
+          </h1>
+          
+          <p style={styles.heroDescription}>
+            Get a comprehensive analysis of your credit profile with personalized 
+            improvement tips. Understand the factors that influence your credit score 
+            and learn how to improve it.
+          </p>
+          
+          <div style={styles.heroActions}>
+            <button 
+              style={styles.primaryBtn}
+              onClick={handleGetStarted}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              CS
-            </div>
-            <div>
-              <div className="text-lg font-semibold">CreditScore AI</div>
-              <div className="text-sm text-[#43334Caa]">Dashboard</div>
-            </div>
-          </div>
-
-          <nav className="flex flex-col gap-2">
-            <Link to="/dashboard" className="px-3 py-2 rounded-lg text-sm bg-white/30 font-medium">Overview</Link>
-            <Link to="#" className="px-3 py-2 rounded-lg text-sm hover:bg-white/20">Reports</Link>
-            <Link to="#" className="px-3 py-2 rounded-lg text-sm hover:bg-white/20">Transactions</Link>
-            <Link to="#" className="px-3 py-2 rounded-lg text-sm hover:bg-white/20">Settings</Link>
-          </nav>
-
-          <div className="mt-auto text-sm text-[#43334Caa]">
-            <div className="mb-2">Need help?</div>
-            <button
-              onClick={() => navigate("/support")}
-              className="px-3 py-2 rounded-lg text-sm bg-transparent border border-[#E83C91]/30 text-[#E83C91] font-medium"
+              <Calculator style={{ width: '20px', height: '20px' }} />
+              Start Credit Analysis
+              <ArrowRight style={{ width: '20px', height: '20px' }} />
+            </button>
+            
+            <button 
+              style={styles.secondaryBtn}
+              onClick={() => navigate('/result')}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              }}
             >
-              Contact Support
+              <FileText style={{ width: '20px', height: '20px' }} />
+              View Sample Report
             </button>
           </div>
-        </aside>
-
-        {/* Main content */}
-        <div className="flex-1 min-h-screen">
-          {/* Topbar */}
-          <header className="flex items-center justify-between p-4 md:p-6 border-b border-[#43334C11] bg-[linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,255,255,0.4))]">
-            <div className="flex items-center gap-3">
-              <button
-                className="md:hidden p-2 rounded-md"
-                onClick={() => setSidebarOpen(s => !s)}
-                aria-label="toggle sidebar"
-                style={{ background: "rgba(67,51,76,0.03)" }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#43334C" strokeWidth="1.5" strokeLinecap="round"/></svg>
-              </button>
-
-              <div className="text-xl font-semibold">Overview</div>
-              <div className="ml-4 hidden md:block text-sm text-[#43334C99]">Welcome back — here's what's happening with your account.</div>
+        </div>
+        
+        <div style={styles.heroStats}>
+          <div 
+            style={styles.statCard}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <div style={styles.statIcon}>
+              <Users style={{ width: '30px', height: '30px', color: 'white' }} />
             </div>
-
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <input
-                  className="rounded-lg px-3 py-2 w-64 bg-white/60 border border-[#43334C11] text-sm placeholder-[#43334C66]"
-                  placeholder="Search transactions, users..."
-                />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 text-[#43334C66]">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#43334C" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                </div>
-              </div>
-
-              <button title="Notifications" className="p-2 rounded-md bg-transparent">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 17H9l-1 2h8l-1-2zM18 8a6 6 0 10-12 0v4l-2 3h16l-2-3V8z" stroke="#43334C" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </button>
-
-              <div className="flex items-center gap-3 bg-white/60 px-3 py-1 rounded-full border border-[#43334C11]">
-                <div className="w-8 h-8 rounded-full bg-[#E83C91] flex items-center justify-center text-white font-semibold">V</div>
-                <div className="text-sm">
-                  <div className="font-medium">Vaishnavi</div>
-                  <div className="text-xs text-[#43334C99]">pvge@edu</div>
-                </div>
-                <button onClick={() => navigate("/login")} className="ml-3 text-sm underline text-[#E83C91]">Logout</button>
-              </div>
+            <div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '5px' }}>
+                8 Key Factors
+              </h3>
+              <p style={{ opacity: '0.8', fontSize: '0.9rem' }}>Comprehensive analysis</p>
             </div>
-          </header>
-
-          {/* Content area */}
-          <main className="p-6 md:p-8">
-            {/* KPI Cards */}
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              {stats.map((s, i) => (
-                <div
-                  key={s.title}
-                  className="rounded-xl p-4"
-                  style={{
-                    background: i % 2 === 0 ? "linear-gradient(90deg, rgba(232,60,145,0.06), rgba(255,143,183,0.03))" : "linear-gradient(90deg, rgba(67,51,76,0.03), rgba(67,51,76,0.01))",
-                    border: "1px solid rgba(67,51,76,0.04)",
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm text-[#43334Caa]">{s.title}</div>
-                      <div className="text-2xl font-bold">{s.value}</div>
-                      <div className="text-xs text-[#43334C99] mt-1">{s.meta}</div>
-                    </div>
-                    <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white" style={{ background: "linear-gradient(135deg,#E83C91,#FF8FB7)" }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d={s.icon} fill="white" /></svg>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </section>
-
-            {/* Two-column layout: charts + transactions */}
-            <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left - Charts (spans 2 cols on lg) */}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="rounded-xl p-4" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4))", border: "1px solid rgba(67,51,76,0.04)" }}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <div className="text-sm text-[#43334Caa]">Monthly Overview</div>
-                      <div className="text-lg font-semibold">Activity & trends</div>
-                    </div>
-                    <div className="text-sm text-[#43334C99]">Feb 2026</div>
-                  </div>
-
-                  {/* Chart placeholder (replace with chart lib) */}
-                  <div className="w-full h-48 rounded-lg bg-white/60 border border-[#43334C11] flex items-center justify-center text-[#43334C66]">
-                    Chart placeholder — integrate Chart.js / Recharts here
-                  </div>
-                </div>
-
-                <div className="rounded-xl p-4" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4))", border: "1px solid rgba(67,51,76,0.04)" }}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <div className="text-sm text-[#43334Caa]">Spending Breakdown</div>
-                      <div className="text-lg font-semibold">Where your money goes</div>
-                    </div>
-                    <div className="text-sm text-[#43334C99]">Last 30 days</div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="col-span-2">
-                      <div className="w-full h-36 rounded-lg bg-white/60 border border-[#43334C11] flex items-center justify-center text-[#43334C66]">
-                        Pie chart placeholder
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full" style={{ background: "#E83C91" }} />
-                          <div className="text-sm">Shopping</div>
-                        </div>
-                        <div className="text-sm font-medium">₹3,200</div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full" style={{ background: "#FF8FB7" }} />
-                          <div className="text-sm">Subscriptions</div>
-                        </div>
-                        <div className="text-sm font-medium">₹1,240</div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full" style={{ background: "#43334C" }} />
-                          <div className="text-sm">Other</div>
-                        </div>
-                        <div className="text-sm font-medium">₹980</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right - Transactions */}
-              <div className="rounded-xl p-4" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4))", border: "1px solid rgba(67,51,76,0.04)" }}>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <div className="text-sm text-[#43334Caa]">Recent Activity</div>
-                    <div className="text-lg font-semibold">Latest transactions</div>
-                  </div>
-                  <button className="text-sm text-[#E83C91]">View all</button>
-                </div>
-
-                <div className="divide-y divide-[#43334C11]">
-                  {transactions.map((t) => (
-                    <div key={t.id} className="py-3 flex items-center justify-between">
-                      <div>
-                        <div className="font-medium">{t.desc}</div>
-                        <div className="text-xs text-[#43334C99]">{t.date}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`font-medium ${t.amount.startsWith("+") ? "text-[#086947]" : "text-[#43334C]"}`}>{t.amount}</div>
-                        <div className="text-xs text-[#43334C99]">{t.status}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Quick actions + tips */}
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-              <div className="md:col-span-2 rounded-xl p-4" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4))", border: "1px solid rgba(67,51,76,0.04)" }}>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <div className="text-sm text-[#43334Caa]">Insights</div>
-                    <div className="text-lg font-semibold">Personalized tips</div>
-                  </div>
-                  <div className="text-sm text-[#43334C99]">Updated today</div>
-                </div>
-
-                <ul className="list-disc pl-5 text-sm text-[#43334C99]">
-                  <li>Pay ₹499 before Feb 10 to avoid late fee.</li>
-                  <li>Consider automating savings for 10% of income.</li>
-                  <li>Your credit score improved by 5 points last month.</li>
-                </ul>
-              </div>
-
-              <div className="rounded-xl p-4 text-sm" style={{ background: "linear-gradient(180deg, rgba(232,60,145,0.05), rgba(255,143,183,0.03))", border: "1px solid rgba(67,51,76,0.04)" }}>
-                <div className="text-sm text-[#43334Caa] mb-2">Quick actions</div>
-                <div className="flex flex-col gap-3">
-                  <button className="py-2 rounded-md font-medium text-white" style={{ background: "linear-gradient(90deg,#E83C91,#FF8FB7)" }}>Add transaction</button>
-                  <button className="py-2 rounded-md font-medium border border-[#E83C91]/30 text-[#E83C91] bg-white/60">Export CSV</button>
-                  <button className="py-2 rounded-md font-medium border border-[#43334C22] text-[#43334C] bg-transparent">Settings</button>
-                </div>
-              </div>
-            </section>
-          </main>
+          </div>
+          
+          <div 
+            style={styles.statCard}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <div style={styles.statIcon}>
+              <Lock style={{ width: '30px', height: '30px', color: 'white' }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '5px' }}>
+                100% Secure
+              </h3>
+              <p style={{ opacity: '0.8', fontSize: '0.9rem' }}>Data stays on your device</p>
+            </div>
+          </div>
+          
+          <div 
+            style={styles.statCard}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <div style={styles.statIcon}>
+              <Zap style={{ width: '30px', height: '30px', color: 'white' }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '5px' }}>
+                Instant Results
+              </h3>
+              <p style={{ opacity: '0.8', fontSize: '0.9rem' }}>Get analysis in seconds</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Mobile slide-over sidebar (simple) */}
-      {sidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-30 bg-black/30" onClick={() => setSidebarOpen(false)}>
-          <div className="w-64 bg-white/70 backdrop-blur-sm h-full p-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-semibold" style={{ background: "linear-gradient(135deg,#E83C91,#FF8FB7)" }}>CS</div>
-              <div>
-                <div className="font-semibold text-[#43334C]">CreditScore AI</div>
-                <div className="text-xs text-[#43334Caa]">Dashboard</div>
+      {/* How It Works Section */}
+      <div style={styles.section}>
+        <div style={styles.sectionHeader}>
+          <h2 style={styles.sectionTitle}>How It Works</h2>
+          <p style={styles.sectionSubtitle}>
+            Get detailed insights into your credit profile in three simple steps
+          </p>
+        </div>
+        
+        <div style={styles.stepsContainer}>
+          {steps.map((step, index) => (
+            <div key={index} style={styles.stepCard}>
+              <div style={styles.stepNumber}>{step.number}</div>
+              <div style={styles.stepContent}>
+                <h3 style={styles.stepTitle}>{step.title}</h3>
+                <p style={styles.stepDescription}>{step.description}</p>
               </div>
             </div>
+          ))}
+        </div>
 
-            <nav className="flex flex-col gap-2">
-              <button className="py-2 rounded-md text-left">Overview</button>
-              <button className="py-2 rounded-md text-left">Reports</button>
-              <button className="py-2 rounded-md text-left">Transactions</button>
-              <button className="py-2 rounded-md text-left">Settings</button>
-              <button className="py-2 rounded-md text-left text-[#E83C91]" onClick={() => navigate("/support")}>Contact support</button>
-            </nav>
+        {/* Features Grid */}
+        <div style={styles.featuresGrid}>
+          {features.map((feature, index) => (
+            <div 
+              key={index} 
+              style={{
+                ...styles.featureCard,
+                borderTop: `4px solid ${feature.color}`
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+              }}
+            >
+              <div style={styles.featureIcon}>
+                {React.cloneElement(feature.icon, { 
+                  style: { width: '30px', height: '30px', color: '#475569' }
+                })}
+              </div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b', marginBottom: '12px' }}>
+                {feature.title}
+              </h3>
+              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Score Ranges Section */}
+      <div style={{ background: 'white', padding: '80px 20px', margin: '40px 0' }}>
+        <div style={styles.sectionHeader}>
+          <h2 style={styles.sectionTitle}>Understanding Credit Score Ranges</h2>
+          <p style={styles.sectionSubtitle}>Know where you stand and what each range means</p>
+        </div>
+        
+        <div style={styles.scoreRangesGrid}>
+          {scoreRanges.map((score, index) => (
+            <div 
+              key={index} 
+              style={{
+                ...styles.scoreCard,
+                borderLeft: `4px solid ${score.color}`
+              }}
+            >
+              <div style={styles.scoreRange}>
+                <span style={styles.rangeValue}>{score.range}</span>
+                <span style={styles.rangeLabel}>{score.label}</span>
+              </div>
+              <div style={styles.rangeBar}>
+                <div style={{
+                  height: '100%',
+                  width: score.width,
+                  background: score.color,
+                  borderRadius: '4px'
+                }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '20px',
+            background: '#f1f5f9',
+            padding: '25px',
+            borderRadius: '15px',
+            borderLeft: '4px solid #3b82f6'
+          }}>
+            <Info style={{ width: '24px', height: '24px', color: '#3b82f6', flexShrink: 0 }} />
+            <div>
+              <h4 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
+                CIBIL Score Range
+              </h4>
+              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
+                In India, CIBIL scores range from 300 to 900. Higher scores indicate better creditworthiness.
+                A score above 750 is generally considered excellent by most lenders.
+              </p>
+            </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Quick Tips Section */}
+      <div style={styles.section}>
+        <div style={styles.sectionHeader}>
+          <h2 style={styles.sectionTitle}>Quick Credit Improvement Tips</h2>
+          <p style={styles.sectionSubtitle}>Essential strategies to boost your credit score</p>
+        </div>
+        
+        <div style={styles.tipsGrid}>
+          {quickTips.map((tip, index) => (
+            <div key={index} style={styles.tipCard}>
+              <div style={styles.tipIcon}>
+                {React.cloneElement(tip.icon, {
+                  style: { width: '24px', height: '24px', color: '#10b981' }
+                })}
+                <span 
+                  style={{
+                    ...styles.importanceBadge,
+                    background: tip.color
+                  }}
+                >
+                  {tip.importance}
+                </span>
+              </div>
+              <p style={{ color: '#1e293b', fontWeight: '500', lineHeight: '1.5', margin: 0 }}>
+                {tip.tip}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div style={styles.ctaSection}>
+        <div style={styles.ctaContent}>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '20px' }}>
+            Ready to Analyze Your Credit Profile?
+          </h2>
+          <p style={{ fontSize: '1.125rem', opacity: '0.9', marginBottom: '40px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+            Get your personalized credit analysis and improvement plan in minutes.
+          </p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
+            <button 
+              style={{ ...styles.primaryBtn, padding: '20px 40px', fontSize: '1.25rem' }}
+              onClick={handleGetStarted}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <Calculator style={{ width: '20px', height: '20px' }} />
+              Start Free Analysis
+              <ArrowRight style={{ width: '20px', height: '20px' }} />
+            </button>
+            
+            <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', opacity: '0.9' }}>
+                <CheckCircle style={{ width: '20px', height: '20px', color: '#60a5fa' }} />
+                <span>No credit card required</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', opacity: '0.9' }}>
+                <CheckCircle style={{ width: '20px', height: '20px', color: '#60a5fa' }} />
+                <span>100% private and secure</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', opacity: '0.9' }}>
+                <CheckCircle style={{ width: '20px', height: '20px', color: '#60a5fa' }} />
+                <span>Instant results</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={styles.footer}>
+        <div style={styles.footerContent}>
+          <div style={{ maxWidth: '300px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <Target style={{ width: '32px', height: '32px', color: '#60a5fa' }} />
+              <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'white' }}>CreditScoreAI</span>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6' }}>
+              AI-powered credit analysis for better financial decisions
+            </p>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px' }}>
+            <div>
+              <h4 style={{ color: 'white', fontSize: '1rem', fontWeight: '600', marginBottom: '20px' }}>Product</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <a href="#features" style={{ color: '#94a3b8', textDecoration: 'none' }}>Features</a>
+                <a href="#how-it-works" style={{ color: '#94a3b8', textDecoration: 'none' }}>How It Works</a>
+                <a href="#pricing" style={{ color: '#94a3b8', textDecoration: 'none' }}>Pricing</a>
+              </div>
+            </div>
+            
+            <div>
+              <h4 style={{ color: 'white', fontSize: '1rem', fontWeight: '600', marginBottom: '20px' }}>Resources</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <a href="#blog" style={{ color: '#94a3b8', textDecoration: 'none' }}>Blog</a>
+                <a href="#guides" style={{ color: '#94a3b8', textDecoration: 'none' }}>Guides</a>
+                <a href="#faq" style={{ color: '#94a3b8', textDecoration: 'none' }}>FAQ</a>
+              </div>
+            </div>
+            
+            <div>
+              <h4 style={{ color: 'white', fontSize: '1rem', fontWeight: '600', marginBottom: '20px' }}>Legal</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <a href="#privacy" style={{ color: '#94a3b8', textDecoration: 'none' }}>Privacy Policy</a>
+                <a href="#terms" style={{ color: '#94a3b8', textDecoration: 'none' }}>Terms of Service</a>
+                <a href="#disclaimer" style={{ color: '#94a3b8', textDecoration: 'none' }}>Disclaimer</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div style={styles.footerBottom}>
+          <p style={{ marginBottom: '20px', opacity: '0.7' }}>
+            © 2024 CreditScoreAI. All rights reserved. For educational purposes only.
+          </p>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            background: 'rgba(239, 68, 68, 0.1)',
+            padding: '15px',
+            borderRadius: '10px',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            maxWidth: '600px',
+            margin: '0 auto'
+          }}>
+            <AlertCircle style={{ width: '20px', height: '20px', color: '#f87171', flexShrink: 0 }} />
+            <span style={{ fontSize: '0.9rem', opacity: '0.9' }}>
+              This tool provides estimates only and is not a substitute for professional financial advice.
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
