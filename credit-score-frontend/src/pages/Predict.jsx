@@ -1,9 +1,6 @@
-// Predict.jsx - Updated with modern form design
+// Predict.jsx — Premium Glass UI with Perfect Center Alignment
 import React, { useState, useEffect } from 'react';
 import {
-  Grid,
-  Card,
-  CardContent,
   TextField,
   Button,
   Typography,
@@ -21,11 +18,37 @@ import {
   alpha,
   useTheme,
   Stack,
+  Avatar,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { predictCreditScore, getSampleData } from '../api/api';
+
+const useScrollReveal = () => {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry, index) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              entry.target.classList.add("show");
+            }, index * 100);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const revealElements = document.querySelectorAll(".reveal");
+    revealElements.forEach((el) => observer.observe(el));
+    
+    return () => {
+      revealElements.forEach((el) => observer.unobserve(el));
+    };
+  }, []);
+};
 
 const Predict = () => {
   const [formData, setFormData] = useState({
@@ -44,6 +67,8 @@ const Predict = () => {
   const [error, setError] = useState(null);
   const [sampleData, setSampleData] = useState([]);
   const theme = useTheme();
+
+  useScrollReveal();
 
   useEffect(() => {
     fetchSampleData();
@@ -112,496 +137,440 @@ const Predict = () => {
     return theme.palette.text.secondary;
   };
 
-  const InputField = ({ label, name, value, onChange, type = 'number', ...props }) => (
+  const InputField = ({ label, name, value, onChange, ...props }) => (
     <Box>
-      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: 'text.primary' }}>
+      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, textAlign: 'left' }}>
         {label}
       </Typography>
       <TextField
         fullWidth
         name={name}
-        type={type}
         value={value}
         onChange={onChange}
-        sx={{
-          '& .MuiOutlinedInput-root': {
-            borderRadius: 3,
-            backgroundColor: alpha(theme.palette.background.paper, 0.8),
-          },
-        }}
+        size="small"
         {...props}
       />
     </Box>
   );
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ mb: 6 }}>
-        <Typography variant="h1" sx={{ fontWeight: 800, mb: 1 }}>
-          Credit Score Prediction
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          Enter your financial details to get an AI-powered credit assessment
-        </Typography>
-      </Box>
-
-      {/* Sample Data */}
-      {sampleData.length > 0 && (
-        <Accordion
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: `linear-gradient(135deg, ${alpha(theme.palette.background.default, 0.97)} 0%, ${alpha(theme.palette.primary.light, 0.03)} 100%)`,
+      py: 4,
+    }}>
+      <Container 
+        maxWidth="md" 
+        sx={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        {/* Header */}
+        <Paper
+          elevation={0}
+          className="reveal opacity-0 translate-y-8"
           sx={{
-            mb: 4,
-            borderRadius: 3,
-            border: `1px solid ${theme.palette.divider}`,
-            '&:before': { display: 'none' },
+            width: '100%',
+            p: 4,
+            mb: 3,
+            borderRadius: 4,
+            background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.8)} 0%, ${alpha(theme.palette.background.paper, 0.9)} 100%)`,
+            backdropFilter: 'blur(20px)',
+            border: `1px solid ${alpha(theme.palette.common.white, 0.2)}`,
+            textAlign: 'center',
           }}
         >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
+          <Avatar
             sx={{
-              borderRadius: 3,
-              '&.Mui-expanded': {
-                borderBottom: `1px solid ${theme.palette.divider}`,
-              },
+              width: 70,
+              height: 70,
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: theme.palette.primary.main,
+              mx: 'auto',
+              mb: 2,
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <ShowChartIcon color="primary" />
-              <Typography variant="h6">Try Sample Profiles</Typography>
-            </Box>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container spacing={2}>
-              {sampleData.map((sample, index) => (
-                <Grid item xs={12} md={4} key={index}>
-                  <Card
-                    variant="outlined"
+            <CalculateIcon sx={{ fontSize: 35 }} />
+          </Avatar>
+          <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+            Credit Score Prediction
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Enter your financial details to get an AI-powered credit assessment
+          </Typography>
+        </Paper>
+
+        {/* Sample Profiles */}
+        {sampleData.length > 0 && (
+          <Accordion
+            elevation={0}
+            className="reveal opacity-0 translate-y-8"
+            sx={{
+              width: '100%',
+              mb: 3,
+              borderRadius: 4,
+              background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.7)} 0%, ${alpha(theme.palette.background.paper, 0.8)} 100%)`,
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${alpha(theme.palette.common.white, 0.2)}`,
+              '&:before': { display: 'none' },
+            }}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon sx={{ color: theme.palette.primary.main }} />}
+              sx={{
+                '& .MuiAccordionSummary-content': {
+                  justifyContent: 'center',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <ShowChartIcon color="primary" />
+                <Typography sx={{ fontWeight: 600 }}>Try Sample Profiles</Typography>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Stack spacing={2}>
+                {sampleData.map((sample, index) => (
+                  <Paper
+                    key={index}
                     sx={{
-                      borderRadius: 3,
-                      border: `1px solid ${theme.palette.divider}`,
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        borderColor: theme.palette.primary.main,
-                        transform: 'translateY(-2px)',
-                      },
+                      p: 2,
+                      textAlign: 'center',
+                      background: alpha(theme.palette.background.paper, 0.6),
+                      backdropFilter: 'blur(10px)',
+                      borderRadius: 2,
                     }}
                   >
-                    <CardContent>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                        {sample.description}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {sample.risk_level} Risk Profile
-                      </Typography>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => loadSampleData(sample.data)}
-                        fullWidth
-                        sx={{ borderRadius: 2 }}
-                      >
-                        Load This Profile
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-      )}
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {sample.description}
+                    </Typography>
+                    <Chip
+                      label={`${sample.risk_level} Risk`}
+                      size="small"
+                      sx={{ my: 1 }}
+                    />
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => loadSampleData(sample.data)}
+                      fullWidth
+                    >
+                      Load Profile
+                    </Button>
+                  </Paper>
+                ))}
+              </Stack>
+            </AccordionDetails>
+          </Accordion>
+        )}
 
-      <Grid container spacing={4}>
-        {/* Form Column */}
-        <Grid item xs={12} lg={7}>
-          <Card
-            sx={{
-              borderRadius: 4,
-              border: `1px solid ${theme.palette.divider}`,
-              background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.8)}, ${alpha(theme.palette.background.paper, 0.9)})`,
-            }}
-          >
-            <CardContent sx={{ p: 4 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                <CalculateIcon color="primary" sx={{ mr: 2, fontSize: 32 }} />
-                <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                  Financial Information
-                </Typography>
+        {/* Form Card */}
+        <Paper
+          elevation={0}
+          className="reveal opacity-0 translate-y-8"
+          sx={{
+            width: '100%',
+            p: 4,
+            mb: 3,
+            borderRadius: 4,
+            background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.7)} 0%, ${alpha(theme.palette.background.paper, 0.8)} 100%)`,
+            backdropFilter: 'blur(20px)',
+            border: `1px solid ${alpha(theme.palette.common.white, 0.2)}`,
+          }}
+        >
+          {/* Form Header - YOUR EXACT CODE */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+            <Box sx={{ 
+              p: 2, 
+              borderRadius: '50%', 
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: theme.palette.primary.main,
+              mb: 2,
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+            }}>
+              <CalculateIcon sx={{ fontSize: 36 }} />
+            </Box>
+            <Typography variant="h5" sx={{ fontWeight: 700, textAlign: 'center' }}>
+              Financial Information
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
+              Fill in your details below for an accurate assessment
+            </Typography>
+          </Box>
+
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={4}>
+              {/* Age */}
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Age</Typography>
+                  <Chip
+                    label={`${formData.age} years`}
+                    size="small"
+                    sx={{
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      fontWeight: 600,
+                    }}
+                  />
+                </Box>
+                <Slider
+                  value={formData.age}
+                  onChange={handleSliderChange('age')}
+                  min={18}
+                  max={70}
+                  sx={{ color: theme.palette.primary.main }}
+                />
               </Box>
 
-              <form onSubmit={handleSubmit}>
-                <Grid container spacing={4}>
-                  {/* Slider Inputs */}
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ mb: 3 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          Age
-                        </Typography>
-                        <Typography variant="body2" color="primary" fontWeight={600}>
-                          {formData.age} years
-                        </Typography>
-                      </Box>
-                      <Slider
-                        value={formData.age}
-                        onChange={handleSliderChange('age')}
-                        min={18}
-                        max={70}
-                        sx={{
-                          color: theme.palette.primary.main,
-                          '& .MuiSlider-thumb': {
-                            width: 20,
-                            height: 20,
-                          },
-                        }}
-                      />
-                    </Box>
-
-                    <Box sx={{ mb: 3 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          Credit Utilization
-                        </Typography>
-                        <Typography variant="body2" color="primary" fontWeight={600}>
-                          {(formData.credit_utilization * 100).toFixed(0)}%
-                        </Typography>
-                      </Box>
-                      <Slider
-                        value={formData.credit_utilization}
-                        onChange={handleSliderChange('credit_utilization')}
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        sx={{
-                          color: theme.palette.primary.main,
-                          '& .MuiSlider-thumb': {
-                            width: 20,
-                            height: 20,
-                          },
-                        }}
-                      />
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-                        <Typography variant="caption" color="text.secondary">0%</Typography>
-                        <Typography variant="caption" color="text.secondary">100%</Typography>
-                      </Box>
-                    </Box>
-
-                    <Box sx={{ mb: 3 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          Missed Payments (12 months)
-                        </Typography>
-                        <Typography variant="body2" color="primary" fontWeight={600}>
-                          {formData.missed_payments}
-                        </Typography>
-                      </Box>
-                      <Slider
-                        value={formData.missed_payments}
-                        onChange={handleSliderChange('missed_payments')}
-                        min={0}
-                        max={10}
-                        sx={{
-                          color: theme.palette.primary.main,
-                          '& .MuiSlider-thumb': {
-                            width: 20,
-                            height: 20,
-                          },
-                        }}
-                      />
-                    </Box>
-                  </Grid>
-
-                  {/* Text Inputs */}
-                  <Grid item xs={12} md={6}>
-                    <Stack spacing={3}>
-                      <InputField
-                        label="Monthly Income (₹)"
-                        name="monthly_income"
-                        value={formData.monthly_income}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography>,
-                        }}
-                      />
-                      <InputField
-                        label="Loan Amount (₹)"
-                        name="loan_amount"
-                        value={formData.loan_amount}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography>,
-                        }}
-                      />
-                      <InputField
-                        label="Active Loans"
-                        name="total_active_loans"
-                        value={formData.total_active_loans}
-                        onChange={handleChange}
-                      />
-                      <InputField
-                        label="Credit History (Years)"
-                        name="credit_history_years"
-                        value={formData.credit_history_years}
-                        onChange={handleChange}
-                      />
-                      <InputField
-                        label="Loan Tenure (Months)"
-                        name="loan_tenure_months"
-                        value={formData.loan_tenure_months}
-                        onChange={handleChange}
-                      />
-                    </Stack>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      size="large"
-                      fullWidth
-                      disabled={loading}
-                      sx={{
-                        py: 1.5,
-                        borderRadius: 3,
-                        fontWeight: 600,
-                        fontSize: '1.1rem',
-                        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                        boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.3)}`,
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: `0 12px 32px ${alpha(theme.palette.primary.main, 0.4)}`,
-                        },
-                        transition: 'all 0.3s ease',
-                      }}
-                    >
-                      {loading ? (
-                        <CircularProgress size={24} color="inherit" />
-                      ) : (
-                        'Generate Credit Assessment'
-                      )}
-                    </Button>
-                  </Grid>
-                </Grid>
-              </form>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Results Column */}
-        <Grid item xs={12} lg={5}>
-          {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mb: 3, 
-                borderRadius: 3,
-                border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
-              }}
-            >
-              {error}
-            </Alert>
-          )}
-
-          {result && (
-            <Card
-              sx={{
-                borderRadius: 4,
-                border: `1px solid ${theme.palette.divider}`,
-                background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.8)}, ${alpha(theme.palette.background.paper, 0.9)})`,
-                boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.1)}`,
-              }}
-            >
-              <CardContent sx={{ p: 4 }}>
-                <Typography variant="h5" sx={{ fontWeight: 700, mb: 4 }}>
-                  Assessment Results
-                </Typography>
-
-                {/* Score Band */}
-                <Box sx={{ textAlign: 'center', mb: 4 }}>
-                  <Box
-                    sx={{
-                      width: 140,
-                      height: 140,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mx: 'auto',
-                      mb: 3,
-                      background: `conic-gradient(${getScoreColor(result.prediction.credit_score_band)} ${result.prediction.risk_score * 3.6}deg, ${alpha(theme.palette.divider, 0.3)} 0deg)`,
-                      position: 'relative',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 120,
-                        height: 120,
-                        borderRadius: '50%',
-                        backgroundColor: theme.palette.background.paper,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'column',
-                      }}
-                    >
-                      <Typography variant="h4" sx={{ fontWeight: 800 }}>
-                        {result.prediction.risk_score}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        /100
-                      </Typography>
-                    </Box>
-                  </Box>
+              {/* Credit Utilization */}
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Credit Utilization</Typography>
                   <Chip
-                    label={result.prediction.credit_score_band}
+                    label={`${(formData.credit_utilization * 100).toFixed(0)}%`}
+                    size="small"
                     sx={{
-                      bgcolor: getScoreColor(result.prediction.credit_score_band),
-                      color: 'white',
-                      fontSize: '1rem',
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
                       fontWeight: 600,
-                      px: 3,
-                      py: 1,
-                      borderRadius: 20,
                     }}
                   />
                 </Box>
+                <Slider
+                  value={formData.credit_utilization}
+                  onChange={handleSliderChange('credit_utilization')}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  sx={{ color: theme.palette.primary.main }}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                  <Typography variant="caption" color="text.secondary">0%</Typography>
+                  <Typography variant="caption" color="text.secondary">100%</Typography>
+                </Box>
+              </Box>
 
-                <Divider sx={{ my: 4 }} />
+              {/* Missed Payments */}
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Missed Payments</Typography>
+                  <Chip
+                    label={`${formData.missed_payments} in 12mo`}
+                    size="small"
+                    sx={{
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      fontWeight: 600,
+                    }}
+                  />
+                </Box>
+                <Slider
+                  value={formData.missed_payments}
+                  onChange={handleSliderChange('missed_payments')}
+                  min={0}
+                  max={10}
+                  sx={{ color: theme.palette.primary.main }}
+                />
+              </Box>
 
-                {/* Loan Decision */}
-                <Box sx={{ mb: 4 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                    Loan Decision
+              {/* Text Fields Grid */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <InputField
+                  label="Monthly Income (₹)"
+                  name="monthly_income"
+                  value={formData.monthly_income}
+                  onChange={handleChange}
+                  InputProps={{ startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography> }}
+                />
+                <InputField
+                  label="Loan Amount (₹)"
+                  name="loan_amount"
+                  value={formData.loan_amount}
+                  onChange={handleChange}
+                  InputProps={{ startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography> }}
+                />
+                <InputField
+                  label="Active Loans"
+                  name="total_active_loans"
+                  value={formData.total_active_loans}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Credit History (Years)"
+                  name="credit_history_years"
+                  value={formData.credit_history_years}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Loan Tenure (Months)"
+                  name="loan_tenure_months"
+                  value={formData.loan_tenure_months}
+                  onChange={handleChange}
+                  sx={{ gridColumn: { sm: 'span 2' } }}
+                />
+              </Box>
+
+              {/* Submit Button */}
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  endIcon={!loading && <TrendingUpIcon />}
+                  sx={{
+                    width: '100%',
+                    maxWidth: '400px',
+                    py: 1.5,
+                    borderRadius: 3,
+                    fontWeight: 700,
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                  }}
+                >
+                  {loading ? <CircularProgress size={24} /> : 'Generate Credit Assessment'}
+                </Button>
+              </Box>
+            </Stack>
+          </form>
+        </Paper>
+
+        {/* Error */}
+        {error && (
+          <Alert severity="error" sx={{ width: '100%', mb: 3, borderRadius: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Results */}
+        {result && (
+          <Paper
+            elevation={0}
+            className="reveal opacity-0 translate-y-8"
+            sx={{
+              width: '100%',
+              p: 4,
+              borderRadius: 4,
+              background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.7)} 0%, ${alpha(theme.palette.background.paper, 0.8)} 100%)`,
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${alpha(theme.palette.common.white, 0.2)}`,
+            }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: 700, textAlign: 'center', mb: 3 }}>
+              Assessment Results
+            </Typography>
+
+            {/* Score Circle */}
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+              <Box sx={{ position: 'relative', width: 160, height: 160, mx: 'auto', mb: 2 }}>
+                <Box sx={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  background: `conic-gradient(${getScoreColor(result.prediction.credit_score_band)} ${result.prediction.risk_score * 3.6}deg, ${alpha(theme.palette.divider, 0.3)} 0deg)`,
+                }} />
+                <Box sx={{
+                  position: 'absolute',
+                  top: '15%',
+                  left: '15%',
+                  width: '70%',
+                  height: '70%',
+                  borderRadius: '50%',
+                  background: alpha(theme.palette.background.paper, 0.9),
+                  backdropFilter: 'blur(10px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                }}>
+                  <Typography variant="h3" sx={{ fontWeight: 800 }}>
+                    {result.prediction.risk_score}
                   </Typography>
-                  <Chip
-                    label={result.prediction.loan_decision}
-                    sx={{
-                      bgcolor: getDecisionColor(result.prediction.loan_decision),
-                      color: 'white',
-                      fontSize: '1rem',
-                      fontWeight: 600,
-                      mb: 2,
-                      px: 3,
-                      py: 1,
-                    }}
-                  />
-                  <Grid container spacing={2} sx={{ mt: 2 }}>
-                    <Grid item xs={6}>
-                      <Card variant="outlined" sx={{ borderRadius: 3, p: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          Risk Level
-                        </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                          {result.prediction.risk_level}
-                        </Typography>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Card variant="outlined" sx={{ borderRadius: 3, p: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          Interest Rate
-                        </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                          {result.prediction.suggested_interest_rate}
-                        </Typography>
-                      </Card>
-                    </Grid>
-                  </Grid>
+                  <Typography variant="caption">/100</Typography>
                 </Box>
+              </Box>
+              <Chip
+                label={result.prediction.credit_score_band}
+                sx={{
+                  bgcolor: getScoreColor(result.prediction.credit_score_band),
+                  color: 'white',
+                  fontWeight: 700,
+                  px: 2,
+                }}
+              />
+            </Box>
 
-                <Divider sx={{ my: 4 }} />
+            <Divider sx={{ my: 3 }} />
 
-                {/* Insights */}
-                {result.prediction.insights && (
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
-                      Insights & Recommendations
-                    </Typography>
-                    
-                    {result.prediction.insights.warnings?.length > 0 && (
-                      <Box sx={{ mb: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Box
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              borderRadius: '50%',
-                              backgroundColor: alpha(theme.palette.error.main, 0.1),
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              mr: 2,
-                            }}
-                          >
-                            <Typography color="error" sx={{ fontSize: '0.875rem' }}>
-                              ⚠️
-                            </Typography>
-                          </Box>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                            Areas for Improvement
-                          </Typography>
-                        </Box>
-                        <Box sx={{ pl: 6 }}>
-                          {result.prediction.insights.warnings.map((warning, index) => (
-                            <Typography
-                              key={index}
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ mb: 1, display: 'flex', alignItems: 'flex-start' }}
-                            >
-                              <span style={{ marginRight: 8 }}>•</span>
-                              {warning}
-                            </Typography>
-                          ))}
-                        </Box>
-                      </Box>
-                    )}
+            {/* Loan Decision */}
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                Loan Decision
+              </Typography>
+              <Chip
+                label={result.prediction.loan_decision}
+                sx={{
+                  bgcolor: getDecisionColor(result.prediction.loan_decision),
+                  color: 'white',
+                  fontWeight: 700,
+                  mb: 2,
+                  px: 2,
+                }}
+              />
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Paper sx={{ p: 2, flex: 1, textAlign: 'center', background: 'transparent' }}>
+                  <Typography variant="caption" color="text.secondary">Risk Level</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    {result.prediction.risk_level}
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, flex: 1, textAlign: 'center', background: 'transparent' }}>
+                  <Typography variant="caption" color="text.secondary">Interest Rate</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    {result.prediction.suggested_interest_rate}
+                  </Typography>
+                </Paper>
+              </Box>
+            </Box>
 
-                    {result.prediction.insights.recommendations?.length > 0 && (
-                      <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Box
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              borderRadius: '50%',
-                              backgroundColor: alpha(theme.palette.success.main, 0.1),
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              mr: 2,
-                            }}
-                          >
-                            <Typography color="success" sx={{ fontSize: '0.875rem' }}>
-                              💡
-                            </Typography>
-                          </Box>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                            Recommendations
-                          </Typography>
-                        </Box>
-                        <Box sx={{ pl: 6 }}>
-                          {result.prediction.insights.recommendations.map((rec, index) => (
-                            <Typography
-                              key={index}
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ mb: 1, display: 'flex', alignItems: 'flex-start' }}
-                            >
-                              <span style={{ marginRight: 8 }}>•</span>
-                              {rec}
-                            </Typography>
-                          ))}
-                        </Box>
-                      </Box>
-                    )}
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </Grid>
-      </Grid>
-    </Container>
+            {/* Insights */}
+            {result.prediction.insights && (
+              <>
+                <Divider sx={{ my: 3 }} />
+                <Typography variant="h6" sx={{ fontWeight: 700, textAlign: 'center', mb: 2 }}>
+                  Insights
+                </Typography>
+                {result.prediction.insights.warnings?.map((w, i) => (
+                  <Typography key={i} variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                    • {w}
+                  </Typography>
+                ))}
+                {result.prediction.insights.recommendations?.map((r, i) => (
+                  <Typography key={i} variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                    • {r}
+                  </Typography>
+                ))}
+              </>
+            )}
+          </Paper>
+        )}
+      </Container>
+
+      <style>{`
+        .reveal {
+          transition: all 0.8s ease;
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        .reveal.show {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
+    </Box>
   );
 };
 
